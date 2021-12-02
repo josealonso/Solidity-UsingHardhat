@@ -197,10 +197,7 @@ And that's really all it takes. Now you can write your config, tests, tasks and 
 
 #### Writing tests and scripts in TypeScript
 
-To write your smart contract tests and scripts you'll most likely need access to an Ethereum library to interact with your smart contracts. This will probably be one of hardhat-ethers
-(opens new window) or hardhat-web3
-
-(opens new window), all of which inject instances into the Hardhat Runtime Environment.
+To write your smart contract tests and scripts you'll most likely need access to an Ethereum library to interact with your smart contracts. This will probably be one of *hardhat-ethers* or *hardhat-web3*, all of which inject instances into the Hardhat Runtime Environment.
 
 When using JavaScript, all the properties in the HRE are injected into the global scope, and are also available by getting the HRE explicitly. When using TypeScript nothing will be available in the global scope and you will need to import everything explicitly.
 
