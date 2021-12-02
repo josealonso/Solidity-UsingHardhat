@@ -1,12 +1,14 @@
-require("@nomiclabs/hardhat-waffle");
+import { task } from "hardhat/config";
+import "@nomiclabs/hardhat-waffle";
 
+let mnemonic = "alpha blossom deer comfort deputy spin photo coach talk grunt tattoo garment";  //: string;
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
-task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
+task("accounts", "Prints the list of accounts", async (args, hre) => {
   const accounts = await hre.ethers.getSigners();
 
   for (const account of accounts) {
-    console.log(account.address);
+    console.log(await account.address);
   }
 });
 
@@ -16,14 +18,17 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
- module.exports = {
-  solidity: "0.8.7",
+export default {
+  solidity: "0.8.3",
   paths: {
     artifacts: './src/artifacts',
   },
-  nettworks: {
+  networks: {
     hardhat: {
-      chainId: 1337  // MetaMask configuration issue
+      accounts: {
+        mnemonic,
+      },
+      chainId: 31337 // 1337  // MetaMask configuration issue
     }
   }
 };

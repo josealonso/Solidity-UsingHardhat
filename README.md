@@ -4,15 +4,11 @@
 We'll be building, deploying, and connecting to a couple of basic smart contracts:
 
 - A contract for creating and updating a message on the Ethereum blockchain.
-- A contract for minting tokens, which allows the owner of the contract to send tokens to others and to read the token balances, and lets owners of the new tokens also send them to others.
 
 We will also build out a React front end that will allow a user to:
 
 - Read the greeting from the contract deployed to the blockchain
 - Update the greeting
-- Send the newly minted tokens from their address to another address
-- Once someone has received tokens, allow them to also send their tokens to someone else
-- Read the token balance from the contract deployed to the blockchain
 
 ### Ethereum development environment
 
@@ -89,4 +85,183 @@ npx hardhat node
 ```
 
 This creates 20 test accounts and addresses for us that we can use to deploy and test our smart contracts. Each account is also loaded up with 10,000 fake Ether.
+
+### Run unit tests
+
+```
+npx hardhat test
+```
+
+(Section taken from official hardhat guides)
+### TypeScript Support
+
+Hardhat will automatically enable its TypeScript support if your config file ends in .ts and is written in valid TypeScript. This requires a few changes to work properly.
+
+#### Installing dependencies
+
+Hardhat uses TypeScript and ts-node under the hood, so you need to install them. To do it, open your terminal, go to your Hardhat project, and run:
+
+```
+npm install --save-dev ts-node typescript
+```
+
+To be able to write your tests in TypeScript, you also need these packages:
+
+```
+npm install --save-dev chai @types/node @types/mocha @types/chai
+```
+
+#### TypeScript configuration
+
+Now, we are going to rename the config file from hardhat.config.js to hardhat.config.ts, just run:
+
+```
+mv hardhat.config.js hardhat.config.ts
+```
+
+We need to apply three changes to your config for it to work with TypeScript:
+
+1. Plugins must be loaded with *import* instead of *require*.
+2. You need to explicitly import the Hardhat config functions, like *task*.
+3. If you are defining tasks, they need to access the *Hardhat Runtime Environment* explicitly, as a parameter.
+
+For example, the sample project's config turns from this
+
+```
+require("@nomiclabs/hardhat-waffle");
+
+// This is a sample Hardhat task. To learn how to create your own go to
+// https://hardhat.org/guides/create-task.html
+task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
+  const accounts = await hre.ethers.getSigners();
+
+  for (const account of accounts) {
+    console.log(await account.address);
+  }
+});
+
+// You need to export an object to set up your config
+// Go to https://hardhat.org/config/ to learn more
+
+/**
+ * @type import('hardhat/config').HardhatUserConfig
+ */
+module.exports = {
+  solidity: "0.7.3"
+};
+```
+
+into this
+
+```
+import { task } from "hardhat/config";
+import "@nomiclabs/hardhat-waffle";
+
+// This is a sample Hardhat task. To learn how to create your own go to
+// https://hardhat.org/guides/create-task.html
+task("accounts", "Prints the list of accounts", async (args, hre) => {
+  const accounts = await hre.ethers.getSigners();
+
+  for (const account of accounts) {
+    console.log(await account.address);
+  }
+});
+
+// You need to export an object to set up your config
+// Go to https://hardhat.org/config/ to learn more
+
+export default {
+  solidity: "0.7.3"
+};
+```
+
+You also need to create a *tsconfig.json* file. Here's a template you can base yours on:
+
+```
+{
+  "compilerOptions": {
+    "target": "es2018",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "outDir": "dist"
+  },
+  "include": ["./scripts", "./test"],
+  "files": ["./hardhat.config.ts"]
+}
+```
+
+You can use different settings, but please make sure your Hardhat config file is included. The easiest way of doing this is by keeping its path in the *files* array.
+
+And that's really all it takes. Now you can write your config, tests, tasks and scripts in TypeScript.
+
+#### Writing tests and scripts in TypeScript
+
+To write your smart contract tests and scripts you'll most likely need access to an Ethereum library to interact with your smart contracts. This will probably be one of hardhat-ethers
+(opens new window) or hardhat-web3
+
+(opens new window), all of which inject instances into the Hardhat Runtime Environment.
+
+When using JavaScript, all the properties in the HRE are injected into the global scope, and are also available by getting the HRE explicitly. When using TypeScript nothing will be available in the global scope and you will need to import everything explicitly.
+
+An example for tests:
+
+```
+import { ethers } from "hardhat";
+import { Signer } from "ethers";
+
+describe("Token", function () {
+  let accounts: Signer[];
+
+  beforeEach(async function () {
+    accounts = await ethers.getSigners();
+  });
+
+  it("should do something right", async function () {
+    // Do something with the accounts
+  });
+});
+```
+
+An example for scripts:
+```
+import { run, ethers } from "hardhat";
+
+async function main() {
+  await run("compile");
+
+  const accounts = await ethers.getSigners();
+
+  console.log(
+    "Accounts:",
+    accounts.map((a) => a.address)
+  );
+}
+
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+```
+
+#### Type-safe smart contract interactions
+
+If you want to type-check smart contract interactions (calling methods, reading events), use *@typechain/hardhat*. It generates typing files (*.d.ts) based on ABI's, and it requires little to no configuration when used with Hardhat.
+
+#### Type-safe configuration
+
+One of the advantages of using TypeScript, is that you can have a type-safe configuration, and avoid typos and other common errors.
+
+To do that, you have to write your config in this way:
+```
+import { HardhatUserConfig } from "hardhat/config";
+
+const config: HardhatUserConfig = {
+  // Your type-safe config goes here
+};
+
+export default config;
+```
 
