@@ -113,6 +113,10 @@ npm install --save-dev chai @types/node @types/mocha @types/chai
 
 #### TypeScript configuration
 
+*NOTE*
+All this manual configuration is not needed starting from the version hardhat@2.6.5, which adds a new sample project based on TypeScript.
+-------------------------------------------------------------------------------
+
 Now, we are going to rename the config file from hardhat.config.js to hardhat.config.ts, just run:
 
 ```
